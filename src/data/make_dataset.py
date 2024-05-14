@@ -1,32 +1,17 @@
-import requests
-import pandas as pd
+from sec_edgar_downloader import Downloader
+import yaml
 
-headers = {'User-Agent': "jacobh0830@gmail.com"}
+with open("../../configs/data.yaml") as f:
+    cfg = yaml.load(f, Loader=yaml.FullLoader)
 
-companies = ['TSLA','AAPL','META','AMZN']
+path_to_save = '../../data/raw'
+EMAIL = cfg['email']
+TICKERS = cfg['tickers']
+AMOUNT = cfg['amount'] 
 
+dl = Downloader("RAG", EMAIL, path_to_save,)
 
+for ticker in TICKERS:
+    dl.get("10-K", ticker, limit= AMOUNT)
 
-companyTickers = requests.get(
-    "https://www.sec.gov/files/company_tickers.json", 
-    headers=headers
-    )
-
-companyData = pd.DataFrame.from_dict(companyTickers.json(),
-                                     orient='index')
-
-companyData = companyData[companyData['ticker'].isin(companies)]
-
-
-companyData['cik_str'] = companyData['cik_str'].astype(
-                           str).str.zfill(10)
-
-
-cik = companyData[0:1].cik_str[0]
-
-filingMetadata = requests.get(
-    f'https://data.sec.gov/submissions/CIK{cik}.json',
-    headers=headers
-    )
-
-print(filingMetadata.json())
+print("Finish Downloading")

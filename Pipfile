@@ -8,6 +8,7 @@ numpy = "*"
 pandas = "*"
 requests = "*"
 sec-edgar-downloader = "*"
+pyyaml = "*"
 
 [dev-packages]
 ipykernel = "*"
