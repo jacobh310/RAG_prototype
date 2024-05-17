@@ -1,3 +1,10 @@
 finnlp==0.0.1
 numpy==1.26.4
 pandas==2.2.2
+sec-edgar-downloader
+pyyaml
+bitsandbytes==0.41.0
+langchain==0.0.240
+sentence-transformers==2.2.2
+pinecone-client==3.1.0
+python-dotenv
