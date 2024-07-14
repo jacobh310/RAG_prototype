@@ -8,3 +8,5 @@ langchain==0.0.240
 sentence-transformers==2.2.2
 pinecone-client==3.1.0
 python-dotenv
+accelerate
+langchain_community
