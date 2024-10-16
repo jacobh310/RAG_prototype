@@ -1,6 +1,6 @@
 {
   tickers: ['TSLA','AAPL','META','AMZN'],
   amount: 5,
-  filing_type: "10-K",
-  email : "jacobh0830@gmail.com"
+  filing_type: "10-K"
+  
 }

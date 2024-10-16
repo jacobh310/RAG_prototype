@@ -1,13 +1,18 @@
 from sec_edgar_downloader import Downloader
 import yaml
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv, find_dotenv
 from utils import get_all_file_paths
+import os 
+
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
 
 with open("..\\..\\configs\\data.yaml") as f:
     cfg = yaml.load(f, Loader=yaml.FullLoader)
 
 path = '../../data/raw'
-EMAIL = cfg['email']
+EMAIL = os.environ.get("EMAIL")
 TICKERS = cfg['tickers']
 AMOUNT = cfg['amount'] 
 
