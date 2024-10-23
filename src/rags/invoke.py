@@ -4,6 +4,7 @@ from pinecone import Pinecone, ServerlessSpec
 import yaml
 from typing import List
 import boto3
+from botocore.exceptions import ClientError
 import numpy as np
 from dotenv import load_dotenv, find_dotenv
 
@@ -39,6 +40,21 @@ class Rag:
         self.embed_model_endpoint_name = embed_model_endpoint_name
         self.llm_model_endpoint_name = llm_model_endpoint_name
 
+    def _check_endpoints(self):
+        session = boto3.Session()
+        sagemaker = session.client('sagemaker')
+
+        try:
+            emb_respone  = sagemaker.describe_endpoint(EndpointName=self.embed_model_endpoint_name)
+            llm_respone  = sagemaker.describe_endpoint(EndpointName=self.llm_model_endpoint_name)
+        except ClientError:
+            print("End point not found on AWS. Run deploy.py")
+            return False
+
+        return True
+
+
+    
     def _invoke_embed_model(self,
                            strings: List):
         """
@@ -143,21 +159,24 @@ class Rag:
                   prompt,
                   filter):
         
-        query_vec = self._invoke_embed_model(prompt)
-        vec_embeds = self._get_embeds(query_vec=query_vec,
-                                      filter=filter)
-        
-        context = self._construct_context(vec_embeds=vec_embeds,
-                                          max_section_len=2500)
-        
-        payload = self._create_rag_payload(prompt=prompt,
-                                 context_str=context)
-        
-        response = self._invoke_llm_model(payload=payload)
+        endpoint = self._check_endpoints()
 
-        return response
-
-    
+        if not endpoint:
+            return
+        else: 
+            query_vec = self._invoke_embed_model(prompt)
+            vec_embeds = self._get_embeds(query_vec=query_vec,
+                                            filter=filter)
+            
+            context = self._construct_context(vec_embeds=vec_embeds,
+                                                max_section_len=2500)
+            
+            payload = self._create_rag_payload(prompt=prompt,
+                                        context_str=context)
+            
+            response = self._invoke_llm_model(payload=payload)
+            
+            return response
         
 if __name__  == "__main__":
     
@@ -165,10 +184,8 @@ if __name__  == "__main__":
               LLM_ENDPOINT_NAME)
     
 
-    prompt = "What is Tesla's total revenue for 2020,2021,2022"
+    prompt = input("Question: ")
     filter = {"Company": {"$eq":"TSLA"}}
-
-    strings = ["some text here", "some more text goes here too"]
     response = rag.rag_query(
                         prompt,
                         filter=filter
